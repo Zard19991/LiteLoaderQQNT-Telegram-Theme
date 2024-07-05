@@ -479,6 +479,14 @@
             "description": "",
             "type": "color",
             "group": "其他设定"
+        },
+        "--tg-group-box-zoom": {
+            "value": "1.1",
+            "defaultValue": "1.1",
+            "title": "群公告、群成员 放大倍率",
+            "description": "无单位",
+            "type": "text",
+            "group": "其他设定"
         }
     },
     "dark": {
@@ -961,7 +969,15 @@
             "description": "",
             "type": "color",
             "group": "其他设定"
+        },
+        "--tg-group-box-zoom": {
+            "value": "1.1",
+            "defaultValue": "1.1",
+            "title": "群公告、群成员 放大倍率",
+            "description": "无单位",
+            "type": "text",
+            "group": "其他设定"
         }
     },
-    "version": "4.4.0"
+    "version": "4.4.1"
 }

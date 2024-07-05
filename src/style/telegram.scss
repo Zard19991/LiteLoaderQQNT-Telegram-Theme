@@ -473,6 +473,7 @@
 @mixin group-box() {
     // 右栏 群公告、群成员
     .group-box__container {
+        zoom: var(--tg-group-box-zoom);
         background-color: var(--tg-group-box-bg-color);
 
         // 展开群成员按钮
@@ -2041,6 +2042,7 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
 
         // 右栏 群公告、群成员
         --tg-group-box-bg-color: #ffffff;
+        --tg-group-box-zoom: 1.1;
 
         // 其他
         --tg-vip-name-color: #000000;
@@ -2144,6 +2146,7 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
 
         // 右栏 群公告、群成员
         --tg-group-box-bg-color: #17212b;
+        --tg-group-box-zoom: 1.1;
 
         // 其他
         --tg-vip-name-color: #ffffff;
