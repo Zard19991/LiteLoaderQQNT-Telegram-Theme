@@ -86,17 +86,13 @@
 
                 // 底部按钮
                 .sidebar__lower {
-                    .func-menu {
-                        .func-menu__item_wrap {
-                            // 功能按钮项
-                            .func-menu__item {
-                                .icon-item {
-                                    .q-icon {
-                                        // 未选中时，普通icon，只有线条
-                                        zoom: var(--tg-sidebar-nav-item-zoom);
-                                        color: var(--tg-sidebar-nav-item-unselected-icon-color);
-                                    }
-                                }
+                    // 功能按钮项
+                    .func-menu__item {
+                        .icon-item {
+                            .q-icon {
+                                // 未选中时，普通icon，只有线条
+                                zoom: calc(var(--tg-sidebar-nav-item-zoom) * 0.95);
+                                color: var(--tg-sidebar-nav-item-unselected-icon-color);
                             }
                         }
                     }
@@ -1745,6 +1741,12 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
 
 // 补丁
 @mixin patch() {
+    // 按钮指针样式
+    button,
+    [role='button'] {
+        cursor: pointer;
+    }
+
     .tab-container {
         .contact-layout::after,
         .message-panel::after {
