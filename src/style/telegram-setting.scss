@@ -102,12 +102,10 @@
                 &::-webkit-slider-thumb {
                     position: relative;
                     height: 26px;
-                    width: 0;
+                    width: 5px;
                     background: transparent;
-                    border-left: 2px black solid;
-                    border-right: 2px white solid;
-                    border-top: none;
-                    border-bottom: none;
+                    border: 1px white solid;
+                    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
                     -webkit-appearance: none;
                 }
             }
