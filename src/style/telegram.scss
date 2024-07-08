@@ -1317,7 +1317,10 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
             zoom: 1.2;
         }
         .ptt-element__button {
-            background-color: var(--tg-message-others-highlight-color) !important;
+            background-color: var(--tg-message-others-highlight-color);
+            .q-icon {
+                color: var(--tg-message-others-bg-color);
+            }
         }
         .ptt-element__progress {
             .ptt-element__progress-item {
@@ -1548,7 +1551,10 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
             zoom: 1.2;
 
             .ptt-element__button {
-                background-color: var(--tg-message-self-highlight-color) !important;
+                background-color: var(--tg-message-self-highlight-color);
+                .q-icon {
+                    color: var(--tg-message-self-bg-color);
+                }
             }
 
             .ptt-element__progress {
