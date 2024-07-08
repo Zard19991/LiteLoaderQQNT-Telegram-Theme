@@ -195,8 +195,10 @@
                                             color: var(--tg-contact-list-item-unselected-title-font-color);
                                             // 会员彩色用户名
                                             &.vip-name,
-                                            .text-ellipsis[style*='color'] {
+                                            .text-ellipsis {
                                                 color: var(--tg-vip-name-color) !important;
+                                                background: unset !important;
+                                                -webkit-text-fill-color: unset !important;
                                                 text-shadow: none !important;
                                                 filter: none !important;
                                             }
@@ -520,8 +522,10 @@
                 color: var(--tg-panel-header-title-color);
                 font-size: var(--tg-panel-header-title-font-size);
                 font-weight: bold;
-                .text-ellipsis[style*='color'] {
+                .text-ellipsis {
                     color: var(--tg-vip-name-color) !important;
+                    background: unset !important;
+                    -webkit-text-fill-color: unset !important;
                     text-shadow: none !important;
                     filter: none !important;
                 }
@@ -2060,9 +2064,9 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
         --tg-func-bar-icon-hover-color: #6a6a6a;
         --tg-window-control-area-button-color: #ababab;
         --tg-window-control-area-button-hover-color: #9a9a9a;
-        --tg-message-reaction-bg-color: #E8F5FC;
-        --tg-message-reaction-font-color: #40A7E3;
-        --tg-message-reaction-clicked-bg-color: #40A7E3;
+        --tg-message-reaction-bg-color: #e8f5fc;
+        --tg-message-reaction-font-color: #40a7e3;
+        --tg-message-reaction-clicked-bg-color: #40a7e3;
         --tg-message-reaction-clicked-font-color: #ffffff;
     }
 }
