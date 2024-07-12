@@ -191,7 +191,7 @@
                                             color: var(--tg-contact-list-item-unselected-title-font-color);
                                             // 会员彩色用户名
                                             &.vip-name,
-                                            .text-ellipsis {
+                                            .text-ellipsis.svip-name__shadow {
                                                 color: var(--tg-vip-name-color) !important;
                                                 background: unset !important;
                                                 -webkit-text-fill-color: unset !important;
@@ -518,7 +518,7 @@
                 color: var(--tg-panel-header-title-color);
                 font-size: var(--tg-panel-header-title-font-size);
                 font-weight: bold;
-                .text-ellipsis {
+                .text-ellipsis.svip-name__shadow {
                     color: var(--tg-vip-name-color) !important;
                     background: unset !important;
                     -webkit-text-fill-color: unset !important;
@@ -1922,8 +1922,8 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
         left: 0 !important;
     }
 
-    // 9.9.11-24616 默认壁纸
-    .miracle-background {
+    // 9.9.11-24616, 9.9.12-25765 默认主题
+    .main-window.miracle-background {
         display: none;
     }
 
