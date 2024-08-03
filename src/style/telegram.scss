@@ -191,12 +191,22 @@
                                             color: var(--tg-contact-list-item-unselected-title-font-color);
                                             // 会员彩色用户名
                                             &.vip-name,
-                                            .text-ellipsis.svip-name__shadow {
-                                                color: var(--tg-vip-name-color) !important;
-                                                background: unset !important;
-                                                -webkit-text-fill-color: unset !important;
-                                                text-shadow: none !important;
-                                                filter: none !important;
+                                            .text-ellipsis {
+                                                &.svip-name__shadow {
+                                                    color: var(--tg-vip-name-color) !important;
+                                                    background: unset !important;
+                                                    -webkit-text-fill-color: unset !important;
+                                                    text-shadow: none !important;
+                                                    filter: none !important;
+                                                }
+                                                &[style^='background'],
+                                                &[style^='color'] {
+                                                    color: var(--tg-vip-name-color) !important;
+                                                    background: unset !important;
+                                                    -webkit-text-fill-color: unset !important;
+                                                    text-shadow: none !important;
+                                                    filter: none !important;
+                                                }
                                             }
                                         }
 
@@ -518,12 +528,22 @@
                 color: var(--tg-panel-header-title-color);
                 font-size: var(--tg-panel-header-title-font-size);
                 font-weight: bold;
-                .text-ellipsis.svip-name__shadow {
-                    color: var(--tg-vip-name-color) !important;
-                    background: unset !important;
-                    -webkit-text-fill-color: unset !important;
-                    text-shadow: none !important;
-                    filter: none !important;
+                .text-ellipsis {
+                    .svip-name__shadow {
+                        color: var(--tg-vip-name-color) !important;
+                        background: unset !important;
+                        -webkit-text-fill-color: unset !important;
+                        text-shadow: none !important;
+                        filter: none !important;
+                    }
+                    &[style^='background'],
+                    &[style^='color'] {
+                        color: var(--tg-vip-name-color) !important;
+                        background: unset !important;
+                        -webkit-text-fill-color: unset !important;
+                        text-shadow: none !important;
+                        filter: none !important;
+                    }
                 }
             }
 
@@ -1044,8 +1064,19 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
     }
 }
 
-// 消息reaction
-@mixin message-reaction {
+// 消息tips
+@mixin message-tips {
+    // 精华消息tag
+    .icon-wrapper:has(img[src*='essence']) {
+        background-color: var(--tg-message-reaction-bg-color);
+        color: var(--tg-message-reaction-font-color);
+    }
+
+    // 表情reaction
+    .reaction-panel:not(:empty) {
+        margin-left: 0;
+        margin-bottom: 2px;
+    }
     .reaction-item {
         .reaction-item-bg {
             border-radius: 100px;
@@ -2194,7 +2225,7 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
         @include message-others();
         @include message-self();
         @include message-concat();
-        @include message-reaction();
+        @include message-tips();
         @include patch();
     }
     @include context-menu();
