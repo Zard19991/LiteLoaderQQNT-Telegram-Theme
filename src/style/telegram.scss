@@ -958,13 +958,15 @@ $func-bar-icon-size: calc(var(--tg-chat-input-area-font-size) * 1.7);
                             // 聊天时间，聊天提示（撤回消息、禁言等）
                             .message__timestamp,
                             .gray-tip-message {
+                                .babble {
+                                    background-color: unset;
+                                    padding: 0;
+                                }
                                 width: fit-content;
                                 margin: 15px auto !important;
                                 color: white !important;
-
                                 background-color: #00000033 !important;
                                 border-radius: 100px !important;
-
                                 font-size: var(--tg-panel-message-timestamp-font-size) !important;
                                 padding: 0.4em 0.8em !important;
                                 letter-spacing: 1px;
