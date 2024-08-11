@@ -40,7 +40,10 @@
 -   本主题自带「自定义壁纸」功能，不必与其他插件的自定义壁纸同时启用。若功能失效，查看是否启用了官方的「超级调色盘」，是否使用了轻量工具箱的壁纸功能
 
 -   本主题与 [背景插件](https://github.com/xh321/LiteLoaderQQNT-Background-Plugin) 存在样式冲突，会产生意料之外的融合效果
+
     -   正常情况下，本主题自带壁纸会覆盖掉背景插件的壁纸。若需同时启用，将 [这张全透明图片](https://upload.wikimedia.org/wikipedia/commons/8/89/HD_transparent_picture.png) 下载下来，设置成 Telegram 主题壁纸即可
+
+-   本主题与 [Markdown 插件](https://github.com/d0j1a1701/LiteLoaderQQNT-Markdown/tree/v4) 共用时，会出现气泡圆角样式、图文混合消息样式问题，不影响正常功能
 
 ## 截图
 
