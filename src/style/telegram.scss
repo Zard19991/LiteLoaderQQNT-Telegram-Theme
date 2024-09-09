@@ -606,9 +606,21 @@
             zoom: 1.35;
             .group-box__toggle-bg {
                 color: var(--brand_standard);
+                svg path {
+                    fill: var(--brand_standard) !important;
+                }
             }
             .group-box__toggle-button {
                 color: white;
+                svg {
+                    fill: white;
+                }
+            }
+            &:hover,
+            &:active {
+                .group-box__toggle-bg svg path {
+                    fill: var(--brand_standard) !important;
+                }
             }
         }
 
