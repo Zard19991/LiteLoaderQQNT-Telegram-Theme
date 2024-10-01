@@ -233,7 +233,7 @@ const concatMsg = () => {
         let msgs = msgList.querySelectorAll('.ml-item')
 
         const msgCnt = msgs.length
-        const nameArr = new Array(msgCnt)
+        const userArr = new Array(msgCnt)
         const selfArr = new Array(msgCnt)
         const grayArr = new Array(msgCnt)
         const timeArr = new Array(msgCnt)
@@ -244,30 +244,30 @@ const concatMsg = () => {
             const id = msg.id
             if (!infoCache.has(id)) {
                 // 用户名、是否为自己消息、是否含时间戳、是否为灰色消息(撤回or管理操作)
-                let name, self, time
+                let user, self, time
                 const gray = !!msg.querySelector('.gray-tip-message')
                 if (gray) {
-                    name = null
+                    user = null
                     self = false
                     time = false
                 } else {
-                    name = msg.querySelector('.user-name .text-ellipsis')?.innerHTML
+                    user = msg.querySelector('.message')?.__VUE__?.[0]?.vnode?.props['msg-record']?.senderUin
                     self = !!msg.querySelector('.message-container--self')
                     time = !!msg.querySelector('.message__timestamp')
                 }
-                nameArr[index] = name
+                userArr[index] = user
                 selfArr[index] = self
                 grayArr[index] = gray
                 timeArr[index] = time
                 infoCache.set(id, {
-                    name: name,
+                    user: user,
                     self: self,
                     gray: gray,
                     time: time,
                 })
             } else {
                 const info = infoCache.get(id)
-                nameArr[index] = info.name
+                userArr[index] = info.user
                 selfArr[index] = info.self
                 grayArr[index] = info.gray
                 timeArr[index] = info.time
@@ -288,7 +288,7 @@ const concatMsg = () => {
             if (grayArr[i] && i > 0) {
                 sepArr[i - 1] = true
             }
-            if (nameArr[i] !== nameArr[i + 1] || selfArr[i] !== selfArr[i + 1]) {
+            if (userArr[i] !== userArr[i + 1] || selfArr[i] !== selfArr[i + 1]) {
                 sepArr[i] = true
             }
         }
