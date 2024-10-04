@@ -29,7 +29,6 @@ const debounce = (fn, time = 100) => {
 const waitForEle = (selector, callback, interval = 100) => {
     const timer = setInterval(() => {
         if (document.querySelector(selector)) {
-            log(`waitForEle ${selector} EXIST`)
             if (typeof callback === 'function') {
                 callback()
             }
@@ -70,16 +69,13 @@ class IPC {
     // 监听设置更新
     static updateSetting() {
         telegram_theme.updateSetting((event, k, v) => {
-            // channel.postMessage({ 'k': k, 'v': v })
             document.body.style.setProperty(k, v)
-            // log('updateSetting', k, v)
         })
     }
 
     // 监听全部设置更新（切换主题）
     static updateAllSetting() {
         telegram_theme.updateAllSetting(async (event, theme) => {
-            log('theme change', theme, 'updateAllCSS start')
             await updateAllCSS()
         })
     }
@@ -91,103 +87,84 @@ const updateAllCSS = async () => {
     for (const k in setting) {
         const v = setting[k]['value']
         if (v) {
-            // log(`updateAllCSS: ${k}----${v}`)
             document.body.style.setProperty(k, v)
         }
     }
-    log('updateAllCSS OK')
 }
 
 // 调节会话列表宽度
-const adjustContactWidth = () => {
+const adjustContactWidth = async () => {
     if (!location.hash.includes('#/main')) {
         return
     }
 
-    log('run adjustContactWidth')
+    const layoutAside = document.querySelector('.two-col-layout__aside')
+    const layoutMain = document.querySelector('.two-col-layout__main')
 
-    try {
-        const overrideWidth = (resetWidth) => {
-            const layoutAside = document.querySelector('.two-col-layout__aside')
-            const layoutMain = document.querySelector('.two-col-layout__main')
-            const oldResizeHandler = document.querySelector('.two-col-layout__aside .resize-handler')
-
-            if (oldResizeHandler && layoutAside && layoutMain) {
-                // 等待QQ赋予aside属性
-                let count = 0
-                const timer = setInterval(() => {
-                    const computedStyle = window.getComputedStyle(layoutAside)
-                    if (
-                        computedStyle.getPropertyValue('--min-width-aside') ||
-                        computedStyle.getPropertyValue('--max-width-aside') ||
-                        computedStyle.getPropertyValue('--drag-width-aside') ||
-                        computedStyle.getPropertyValue('--default-width-aside')
-                    ) {
-                        // QQ已完成自定义宽度赋值，覆盖掉
-                        const resizeHandler = oldResizeHandler.cloneNode(true)
-                        if (!resizeHandler || !oldResizeHandler.parentNode) {
-                            return
-                        }
-                        oldResizeHandler.parentNode.replaceChild(resizeHandler, oldResizeHandler)
-
-                        // 调大默认长度, 重写事件
-                        layoutAside.style.setProperty('--min-width-aside', '78px')
-                        layoutAside.style.setProperty('--max-width-aside', '50vw')
-                        layoutAside.style.setProperty('--default-width-aside', '300px')
-                        if (resetWidth) {
-                            layoutAside.style.setProperty('--drag-width-aside', '300px')
-                            layoutAside.style.width = '300px'
-                            layoutAside.style.flexBasis = '300px'
-                        }
-                        let isResizing = false
-                        let startX = 0
-                        let startWidth = 0
-
-                        resizeHandler.addEventListener('mousedown', (event) => {
-                            isResizing = true
-                            startX = event.clientX
-                            startWidth = parseFloat(getComputedStyle(layoutAside).width)
-                        })
-                        document.addEventListener('mousemove', (event) => {
-                            if (!isResizing) {
-                                return
-                            }
-                            const width = startWidth + event.clientX - startX
-                            layoutAside.style.flexBasis = width + 'px'
-                            layoutAside.style.width = width + 'px'
-                            layoutAside.style.setProperty('--drag-width-aside', `${width}px`)
-                        })
-                        document.addEventListener('mouseup', () => {
-                            if (!isResizing) {
-                                return
-                            }
-                            isResizing = false
-                        })
-                        clearInterval(timer)
-                    }
-                    count++
-                    if (count > 50) {
-                        clearInterval(timer)
-                    }
-                }, 100)
-            }
+    const replaceResizeHandler = () => {
+        const oldResizeHandler = document.querySelector('.two-col-layout__aside .resize-handler')
+        if (!oldResizeHandler) {
+            return
         }
+        const resizeHandler = oldResizeHandler.cloneNode(true)
+        oldResizeHandler.parentNode?.replaceChild(resizeHandler, oldResizeHandler)
 
-        overrideWidth(true)
-
-        // 监听窗口调节
-        window.addEventListener('resize', () => {
-            const task = setInterval(() => {
-                const mainLayout = document.querySelector('.two-col-layout__main')
-                if (getComputedStyle(mainLayout).display !== 'none') {
-                    overrideWidth(false)
-                }
-                clearInterval(task)
-            }, 50)
+        let isResizing = false
+        let startX = 0
+        let startWidth = 0
+        resizeHandler.addEventListener('mousedown', (event) => {
+            isResizing = true
+            startX = event.clientX
+            startWidth = parseFloat(getComputedStyle(layoutAside).width)
         })
-    } catch (err) {
-        error('adjustContactWidth error', err.toString())
+        document.addEventListener('mousemove', (event) => {
+            if (!isResizing) {
+                return
+            }
+            const width = startWidth + event.clientX - startX
+            layoutAside.style.flexBasis = width + 'px'
+            layoutAside.style.width = width + 'px'
+            layoutAside.style.setProperty('--drag-width-aside', `${width}px`)
+        })
+        document.addEventListener('mouseup', () => {
+            if (!isResizing) {
+                return
+            }
+            isResizing = false
+        })
     }
+
+    const overrideWidth = () => {
+        layoutAside.style.setProperty('--min-width-aside', '78px')
+        layoutAside.style.setProperty('--default-width-aside', '300px')
+        layoutAside.style.width = '300px'
+
+        // 单栏模式or双栏模式
+        if (getComputedStyle(layoutMain).display !== 'none') {
+            layoutAside.style.setProperty('--max-width-aside', '80vw')
+            layoutAside.style.setProperty('--drag-width-aside', '300px')
+            layoutAside.style.flexBasis = '300px'
+        } else {
+            layoutAside.style.setProperty('--max-width-aside', '100%')
+            layoutAside.style.setProperty('--drag-width-aside', '100%')
+            layoutAside.style.flexBasis = '100%'
+        }
+    }
+
+    replaceResizeHandler()
+    overrideWidth()
+
+    // 监听窗口调节
+    addEventListener('resize', () => {
+        waitForEle(
+            `.two-col-layout__aside[style*='width-aside']:has(.resize-handler) + .two-col-layout__main[style*='width-main']`,
+            () => {
+                replaceResizeHandler()
+                overrideWidth()
+            },
+            100,
+        )
+    })
 }
 
 // key为num str的Cache
@@ -222,7 +199,7 @@ class LimitedMap {
 }
 
 // 仿Telegram，拼接消息，头像浮动
-const concatMsg = () => {
+const concatMsg = async () => {
     const msgList = document.querySelector('#ml-root .ml-list')
     if (!msgList) {
         return
@@ -374,7 +351,6 @@ const channel = new BroadcastChannel('telegram_renderer')
 
 // 聊天窗口创建
 const onMessageCreate = async () => {
-    log('onMessageCreate start')
     // 插入主题CSS
     if (!document.head?.querySelector('.telegram-css')) {
         const link = document.createElement('link')
@@ -383,7 +359,6 @@ const onMessageCreate = async () => {
         link.classList.add('telegram-css')
         link.href = `local:///${pluginPath.replaceAll('\\', '/')}/src/style/telegram.css`
         document.head.appendChild(link)
-        log('insert telegram css, OK')
     }
 
     // 监听设置更新
@@ -391,11 +366,43 @@ const onMessageCreate = async () => {
     IPC.updateAllSetting()
 
     // 更新CSS
-    waitForEle('body', updateAllCSS)
+    try {
+        waitForEle('body', () => {
+            updateAllCSS().catch((err) => {
+                throw err
+            })
+        })
+    } catch (err) {
+        error('updateAllCSS failed', err)
+    }
     // 调节宽度
-    waitForEle('.two-col-layout__aside .resize-handler', adjustContactWidth, 1000)
+    try {
+        waitForEle(
+            `.two-col-layout__aside[style*='width-aside']:has(.resize-handler) + .two-col-layout__main[style*='width-main']`,
+            () => {
+                adjustContactWidth().catch((err) => {
+                    throw err
+                })
+            },
+            500,
+        )
+    } catch (err) {
+        error('adjustContactWidth failed', err)
+    }
     // 拼接消息，头像浮动
-    waitForEle('#ml-root .ml-list', concatMsg, 500)
+    try {
+        waitForEle(
+            '#ml-root .ml-list',
+            () => {
+                concatMsg().catch((err) => {
+                    throw err
+                })
+            },
+            500,
+        )
+    } catch (err) {
+        error('concatMsg failed', err)
+    }
 
     channel.onmessage = (event) => {
         if (['#/main/message', '#/main/contact/profile', '#/chat'].includes(location.hash)) {
@@ -403,13 +410,11 @@ const onMessageCreate = async () => {
                 const k = event.data['k']
                 const v = event.data['v']
                 document.body.style.setProperty(k, v)
-                // log('set body style', k, v)
             } catch (err) {
                 error('channel.onmessage error', err)
             }
         }
     }
-    log('onMessageCreate, OK')
 }
 
 try {
@@ -517,7 +522,6 @@ class ColorPickerItem {
             channel.postMessage({ k: this.itemKey, v: colorWithOpacity })
             // 保存设置
             IPC.debounceSetSetting(this.itemKey, colorWithOpacity)
-            // log(`colorPicker set body style, ${this.itemKey} : ${colorWithOpacity}`)
         })
 
         // 监听透明度修改
@@ -537,7 +541,6 @@ class ColorPickerItem {
             channel.postMessage({ k: this.itemKey, v: colorWithOpacity })
             // 保存设置
             IPC.debounceSetSetting(this.itemKey, colorWithOpacity)
-            // log(`colorPicker set body style, ${this.itemKey} : ${colorWithOpacity}`)
         })
 
         // 监听重置
@@ -604,7 +607,6 @@ class TextItem {
             channel.postMessage({ k: this.itemKey, v: newValue })
             // 保存设置
             IPC.debounceSetSetting(this.itemKey, newValue)
-            // log(`textInput set body style, ${this.itemKey} : ${newValue}`)
         })
 
         // 监听重置
@@ -743,7 +745,6 @@ const onSettingCreate = async (view) => {
 
         for (const listTitle in settingItemLists) {
             new SettingList(listTitle, settingItemLists[listTitle]).createNode(view)
-            log(`create list ${listTitle}, ${settingItemLists[listTitle].length} items`)
         }
     } catch (err) {
         error('onSettingCreate, error', err.toString())
