@@ -204,141 +204,124 @@ const concatMsg = async () => {
     if (!msgList) {
         return
     }
-    const infoCache = new LimitedMap(20000)
 
-    const work = () => {
-        let msgs = msgList.querySelectorAll('.ml-item')
+    let rafId = 0
+    const throttledFnByFrame = (fn) => {
+        cancelAnimationFrame(rafId)
+        rafId = requestAnimationFrame(fn)
+    }
+
+    const handle = () => {
+        const isPrivateChat = !msgList.querySelector('.user-name')
+
+        const msgs = app.__vue_app__.config.globalProperties.$store.state.aio_chatMsgArea.msgListRef.curMsgs
+        if (!msgs.length) {
+            return
+        }
 
         const msgCnt = msgs.length
-        const userArr = new Array(msgCnt)
-        const selfArr = new Array(msgCnt)
-        const grayArr = new Array(msgCnt)
-        const timeArr = new Array(msgCnt)
+        const idArr = new Array(msgCnt) // 消息ID
+        const userArr = new Array(msgCnt) // 发送人QQ
+        const selfArr = new Array(msgCnt) // 自己的消息
+        const grayArr = new Array(msgCnt) // 是否无气泡 5通知 19通话
+        const timeArr = new Array(msgCnt) // 是否包含时间戳
+        const septArr = new Array(msgCnt + 1) // n条消息n+1个间隙
+        const typeArr = new Array(msgCnt) // 消息类型 head/body/tail/single
+        const sumHeightArr = new Array(msgCnt) // 记录头像浮动高度
 
-        // 1. 获取、补齐信息
-        const getInfo = (index) => {
-            const msg = msgs[index]
-            const id = msg.id
-            if (!infoCache.has(id)) {
-                // 用户名、是否为自己消息、是否含时间戳、是否为灰色消息(撤回or管理操作)
-                let user, self, time
-                const gray = !!msg.querySelector('.gray-tip-message')
-                if (gray) {
-                    user = null
-                    self = false
-                    time = false
-                } else {
-                    user = msg.querySelector('.message')?.__VUE__?.[0]?.vnode?.props['msg-record']?.senderUin
-                    self = !!msg.querySelector('.message-container--self')
-                    time = !!msg.querySelector('.message__timestamp')
-                }
-                userArr[index] = user
-                selfArr[index] = self
-                grayArr[index] = gray
-                timeArr[index] = time
-                infoCache.set(id, {
-                    user: user,
-                    self: self,
-                    gray: gray,
-                    time: time,
-                })
-            } else {
-                const info = infoCache.get(id)
-                userArr[index] = info.user
-                selfArr[index] = info.self
-                grayArr[index] = info.gray
-                timeArr[index] = info.time
-            }
-        }
         for (let i = 0; i < msgCnt; i++) {
-            getInfo(i)
-        }
+            /**
+             * 1. 获取信息
+             */
+            const msg = msgs[i]
+            idArr[i] = msg.id
+            userArr[i] = msg.data.senderUin
+            selfArr[i] = !!msg.data.sendType
+            grayArr[i] = [5, 19].includes(msg.data.msgType)
+            timeArr[i] = !!msg.data.showTimestamp
 
-        // 2. 计算消息断点
-        const typeArr = new Array(msgCnt)
-        const sepArr = new Array(msgCnt)
-        for (let i = 0; i < msgCnt - 1; i++) {
-            // 出现时间戳 / 出现gray消息 / 位置变化 / 用户名变化
-            if (timeArr[i]) {
-                sepArr[i] = true
-            }
-            if (grayArr[i] && i > 0) {
-                sepArr[i - 1] = true
-            }
-            if (userArr[i] !== userArr[i + 1] || selfArr[i] !== selfArr[i + 1]) {
-                sepArr[i] = true
+            /**
+             * 2. 计算消息断点
+             * 截断时机: 出现时间戳 / 出现gray消息 / 用户变化
+             */
+            if (grayArr[i]) {
+                septArr[i] = true
+                septArr[i + 1] = true
+            } else if (timeArr[i] || i === 0 || userArr[i] !== userArr[i - 1]) {
+                septArr[i] = true
             }
         }
-        sepArr[msgCnt - 1] = true // 最后节点
+        septArr[msgCnt] = true
 
-        let start = 0
-        let end
-        for (end = 0; end < sepArr.length; end++) {
-            if (sepArr[end]) {
-                // 连续消息区间
-                const head = end
-                const tail = start
+        /**
+         * 3. 计算消息类型
+         */
+        let p = 0
+        for (let q = 1; q < septArr.length; q++) {
+            if (septArr[q]) {
+                const head = p
+                const tail = q - 1
                 if (head === tail) {
                     typeArr[head] = selfArr[head] ? 'self-single' : 'others-single'
                 } else {
-                    typeArr[tail] = selfArr[tail] ? 'self-tail' : 'others-tail'
-                    for (let body = tail + 1; body < head; body++) {
+                    typeArr[head] = selfArr[head] ? 'self-head' : 'others-head'
+                    for (let body = head + 1; body < tail; body++) {
                         typeArr[body] = selfArr[body] ? 'self-body' : 'others-body'
                     }
-                    typeArr[head] = selfArr[head] ? 'self-head' : 'others-head'
+                    typeArr[tail] = selfArr[tail] ? 'self-tail' : 'others-tail'
                 }
-                start = end + 1
+                p = q
             }
         }
 
-        // 3. 高度计算
-        const heightArr = new Array(msgCnt)
-        let sumIndex = 0
-        let sumHeight = 0
-        for (let i = 0; i < msgCnt; i++) {
-            if (typeArr[i] === 'others-tail') {
-                sumHeight = 0
-                sumIndex = i
-            }
-            if (['others-head', 'others-body', 'others-tail'].includes(typeArr[i])) {
-                const msg = msgs[i].querySelector('.message-content__wrapper')
-                if (msg) {
-                    sumHeight += msg.offsetHeight + 3
-                }
-            }
-            if (typeArr[i] === 'others-head') {
-                heightArr[sumIndex] = sumHeight
-            }
-        }
-
-        // 4. rAF统一修改style，给.ml-item赋予属性，修改头像浮动height
-        requestAnimationFrame(() => {
+        /**
+         * 4. 群聊对方消息 高度计算
+         */
+        if (!isPrivateChat) {
+            let sumHeight = 0
+            const classes = ['others-head', 'others-body', 'others-tail']
             for (let i = 0; i < msgCnt; i++) {
-                if (typeArr[i]) {
-                    msgs[i].setAttribute('class', `ml-item ${typeArr[i]}`)
+                if (typeArr[i] === 'others-head') {
+                    sumHeight = 0
                 }
-                if (heightArr[i]) {
-                    const avatar = msgs[i].querySelector('.avatar-span')
+                if (classes.includes(typeArr[i])) {
+                    const msg = msgList.querySelector(`[id="${idArr[i]}"] .message-content__wrapper`)
+                    if (msg) {
+                        sumHeight += msg.offsetHeight + 3
+                    }
+                }
+                if (typeArr[i] === 'others-tail') {
+                    sumHeightArr[i] = sumHeight + 20
+                }
+            }
+        }
+
+        /**
+         * 5. 样式修改
+         */
+        for (let i = 0; i < msgCnt; i++) {
+            const msg = document.getElementById(idArr[i])
+            if (msg) {
+                if (typeArr[i]) {
+                    const newClassName = `ml-item ${typeArr[i]}`
+                    if (msg.className !== newClassName) {
+                        msg.className = newClassName
+                    }
+                }
+                if (!isPrivateChat && sumHeightArr[i]) {
+                    const avatar = msg.querySelector('.avatar-span')
                     if (avatar) {
-                        avatar.style.height = `${heightArr[i] + 20}px`
+                        avatar.style.height = `${sumHeightArr[i]}px`
                     }
                 }
             }
-        })
+        }
     }
 
     const observer = new MutationObserver(async (mutationList) => {
-        // 不处理私聊，纯CSS解决
-        if (!msgList.querySelector('.user-name')) {
-            return
-        }
         for (let i = 0; i < mutationList.length; i++) {
-            if (mutationList[i].addedNodes.length > 0) {
-                try {
-                    work()
-                } catch {
-                    // error(err)
-                }
+            if (mutationList[i].addedNodes.length) {
+                throttledFnByFrame(handle)
                 return
             }
         }
