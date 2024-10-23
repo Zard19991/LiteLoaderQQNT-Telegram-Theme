@@ -211,12 +211,31 @@ const concatMsg = async () => {
         rafId = requestAnimationFrame(fn)
     }
 
+    // 9.9.16-28788 前后版本消息顺序颠倒
+    let isNewMsg = true
+    try {
+        const version = app?.__vue_app__?.config?.globalProperties?.$dt?.channel?.sceneVersion?.split('.')
+        if (version && version.length == 3) {
+            const b = parseInt(version[1])
+            const c = parseInt(version[2])
+            if ((b === 9 && c < 16) || b < 9) {
+                isNewMsg = false
+            }
+        }
+    } catch {
+        //
+    }
+
     const handle = () => {
         const isPrivateChat = !msgList.querySelector('.user-name')
 
-        const msgs = app.__vue_app__.config.globalProperties.$store.state.aio_chatMsgArea.msgListRef.curMsgs
+        let msgs = app.__vue_app__.config.globalProperties.$store.state.aio_chatMsgArea.msgListRef.curMsgs
         if (!msgs.length) {
             return
+        }
+        // 消息顺序
+        if (!isNewMsg) {
+            msgs = Array.from(msgs).reverse()
         }
 
         const msgCnt = msgs.length
