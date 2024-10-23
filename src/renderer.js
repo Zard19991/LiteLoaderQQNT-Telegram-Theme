@@ -214,16 +214,11 @@ const concatMsg = async () => {
     // 9.9.16-28788 前后版本消息顺序颠倒
     let isNewMsg = true
     try {
-        const version = app?.__vue_app__?.config?.globalProperties?.$dt?.channel?.sceneVersion?.split('.')
-        if (version && version.length == 3) {
-            const b = parseInt(version[1])
-            const c = parseInt(version[2])
-            if ((b === 9 && c < 16) || b < 9) {
-                isNewMsg = false
-            }
+        if (parseInt(LiteLoader.package.qqnt.buildVersion) < 28788) {
+            isNewMsg = false
         }
     } catch {
-        //
+        /* empty */
     }
 
     const handle = () => {
