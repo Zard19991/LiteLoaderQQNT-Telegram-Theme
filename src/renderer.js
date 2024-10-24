@@ -222,6 +222,10 @@ const concatMsg = async () => {
     }
 
     const handle = () => {
+        // 官号消息
+        if (msgList.querySelector('.is-pub-account')) {
+            return
+        }
         const isPrivateChat = !msgList.querySelector('.user-name')
 
         let msgs = app.__vue_app__.config.globalProperties.$store.state.aio_chatMsgArea.msgListRef.curMsgs
